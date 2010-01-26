@@ -51,23 +51,24 @@
                            (if (fl< source target)
                                (log (fl* (fl- 1.0 p-left) (fl/ 1.0 dx)))
                                (log (fl* p-left (fl/ 1.0 dx)))))))
-          (let ((samples ((mcmc-sample propose posterior jump-prob mu-true) N)))
-            #;(with-output-to-file "mcmc-output.dat"
+          (let ((sample-thunk (mcmc-sample propose posterior jump-prob mu-true)))
+            (let ((samples (for/list ((i (in-range N))) (sample-thunk))))
+              #;(with-output-to-file "mcmc-output.dat"
               (lambda ()
-                (for-each
-                 (lambda (sample)
-                   (printf "~a ~a~%" (car sample) (cdr sample)))
-                 samples))
+              (for-each
+              (lambda (sample)
+              (printf "~a ~a~%" (car sample) (cdr sample)))
+              samples))
               #:exists 'replace)
-            (let* ((sample-x (for/fold ((x-sum 0.0)) ((sample (in-list samples)))
-                               (let ((x (car sample)))
-                                 (fl+ x-sum (/ x N)))))
-                   (sample-sigma (flsqrt 
-                                  (for/fold ((s-sum 0.0)) ((sample (in-list samples)))
-                                    (let ((x (car sample)))
-                                      (let ((dx (fl- x sample-x)))
-                                        (fl+ s-sum (/ (fl* dx dx) N))))))))
-              (check-close? 1e-2 1e-2 sample-x mu-true)
-              (check-close? 1e-2 1e-2 sample-sigma sigma-true)))))))))
+              (let* ((sample-x (for/fold ((x-sum 0.0)) ((sample (in-list samples)))
+                                 (let ((x (car sample)))
+                                   (fl+ x-sum (/ x N)))))
+                     (sample-sigma (flsqrt 
+                                    (for/fold ((s-sum 0.0)) ((sample (in-list samples)))
+                                      (let ((x (car sample)))
+                                        (let ((dx (fl- x sample-x)))
+                                          (fl+ s-sum (/ (fl* dx dx) N))))))))
+                (check-close? 1e-2 1e-2 sample-x mu-true)
+                (check-close? 1e-2 1e-2 sample-sigma sigma-true))))))))))
             
                           
