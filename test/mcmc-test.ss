@@ -5,6 +5,8 @@
          scheme/flonum
          "../mcmc.ss")
 
+(provide tests)
+
 (define ((log-gaussian mu sigma) x)
   (let ((dx (fl- x mu)))
     (fl- (fl/ (fl* dx dx)
