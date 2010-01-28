@@ -3,7 +3,8 @@
 (require schemeunit
          schemeunit/text-ui
          scheme/flonum
-         "../mcmc.ss")
+         "../mcmc.ss"
+         "checks.ss")
 
 (provide tests)
 
@@ -31,10 +32,6 @@
         (fl- x (fl* dx (random)))
         (fl+ x (fl* dx (random))))))
 
-(define-simple-check (check-close? epsabs epsrel x y)
-  (let ((dx (abs (- x y))))
-    (<= dx (+ epsabs (* epsrel 0.5 (+ (abs x) (abs y)))))))
-
 (define tests
   (test-suite
    "mcmc.ss tests"
@@ -44,7 +41,6 @@
           (sigma-true (random))
           (N 1000000)
           (p-left 0.75))
-      #;(printf "mu = ~a, sigma = ~a~%" mu-true sigma-true)
       (let ((dx (/ sigma-true 10)))
         (let ((posterior (lambda (x) ((log-gaussian mu-true sigma-true) x)))
               (propose (lambda (x)
@@ -55,13 +51,6 @@
                                (log (fl* p-left (fl/ 1.0 dx)))))))
           (let ((sample-thunk (mcmc-sample propose posterior jump-prob mu-true)))
             (let ((samples (for/list ((i (in-range N))) (sample-thunk))))
-              #;(with-output-to-file "mcmc-output.dat"
-              (lambda ()
-              (for-each
-              (lambda (sample)
-              (printf "~a ~a~%" (car sample) (cdr sample)))
-              samples))
-              #:exists 'replace)
               (let* ((sample-x (for/fold ((x-sum 0.0)) ((sample (in-list samples)))
                                  (let ((x (car sample)))
                                    (fl+ x-sum (/ x N)))))
@@ -70,7 +59,5 @@
                                       (let ((x (car sample)))
                                         (let ((dx (fl- x sample-x)))
                                           (fl+ s-sum (/ (fl* dx dx) N))))))))
-                (check-close? 1e-2 1e-2 sample-x mu-true)
-                (check-close? 1e-2 1e-2 sample-sigma sigma-true))))))))))
-            
-                          
+                (check-close? 5e-2 5e-2 sample-x mu-true)
+                (check-close? 5e-2 5e-2 sample-sigma sigma-true))))))))))
