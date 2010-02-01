@@ -25,5 +25,5 @@
               (if (fl<= rand log-accept)
                   (let ((new (cons new-state new-posterior)))
                     (set! last new)
-                    new)     
+                    new)
                   last))))))))
