@@ -91,8 +91,11 @@
             (log-jump-probability (lambda args 0.0)) ; Don't care about jumps, since symmetric.
             (log-posterior (lambda (x) (log ((multi-gaussian mu sigma) x))))
             (->coords (lambda (mcmc-state) (car mcmc-state))))
-        (let ((mcmc-sample-generate (mcmc-sample proposal log-posterior log-jump-probability mu)))
-          (let ((samples (for/list ((i (in-range 100000))) (mcmc-sample-generate))))
+        (let ((next-mcmc-sample (make-mcmc-sampler proposal log-posterior log-jump-probability)))
+          (let ((samples (for/fold ((samples (list (cons mu (log-posterior mu)))))
+                             ((i (in-range 100000)))
+                           (cons (next-mcmc-sample (car samples))
+                                 samples))))
             (let ((tree (objects->density-tree ->coords car samples)))
               (let ((integral (fold
                                (lambda (tree sum)
