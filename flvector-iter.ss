@@ -18,7 +18,8 @@
 |#
 
 (require scheme/flonum
-         scheme/fixnum)
+         scheme/fixnum
+         scheme/unsafe/ops)
 
 (provide in-flvector)
 
@@ -45,9 +46,9 @@
          ((id) (:do-in (((the-flvector) flvector-expr))
                        (when (not (flvector? the-flvector))
                          (error 'in-flvector "expected flvector, got: " the-flvector))
-                       ((i 0) (N (flvector-length the-flvector)))
+                       ((i 0) (N (unsafe-flvector-length the-flvector)))
                        (fx< i N)
-                       (((id) (flvector-ref the-flvector i)))
+                       (((id) (unsafe-flvector-ref the-flvector i)))
                        #t
                        #t
                        ((add1 i) N))))))))
