@@ -47,8 +47,8 @@
                        (when (not (flvector? the-flvector))
                          (error 'in-flvector "expected flvector, got: " the-flvector))
                        ((i 0) (N (unsafe-flvector-length the-flvector)))
-                       (fx< i N)
+                       (unsafe-fx< i N)
                        (((id) (unsafe-flvector-ref the-flvector i)))
                        #t
                        #t
-                       ((add1 i) N))))))))
+                       ((unsafe-fx+ 1 i) N))))))))
